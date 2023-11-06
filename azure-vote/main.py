@@ -6,25 +6,41 @@ import socket
 import sys
 import logging
 from datetime import datetime
-from opencensus.trace.tracer import Tracer
-from opencensus.ext.azure.log_exporter import AzureLogHandler, AzureEventHandler
-from opencensus.ext.azure import metrics_exporter
-from opencensus.trace.samplers import ProbabilitySampler
-from opencensus.ext.azure.trace_exporter import AzureExporter
-from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 
 # App Insights
 # Import required libraries for App Insights
+from opencensus.trace.tracer import Tracer
+from opencensus.trace import config_integration
+from opencensus.stats import view as view_module
+from opencensus.ext.azure import metrics_exporter
+from opencensus.stats import stats as stats_module
+from opencensus.trace.samplers import ProbabilitySampler
+from opencensus.ext.azure.trace_exporter import AzureExporter
+from opencensus.ext.flask.flask_middleware import FlaskMiddleware
+from opencensus.ext.azure.log_exporter import AzureLogHandler, AzureEventHandler
+
+stats = stats_module.stats
+view_manager = stats.view_manager
+config_integration.trace_integrations(['logging'])
+config_integration.trace_integrations(['requests'])
+
 
 # Logging
 logger = logging.getLogger(__name__)
-logger.addHandler(AzureLogHandler(connection_string='InstrumentationKey=49fac209-3b47-4bfe-a466-a864fb80f832'))
+handler = AzureLogHandler(connection_string='InstrumentationKey=49fac209-3b47-4bfe-a466-a864fb80f832')
+handler.setFormatter(logging.Formatter('%(traceId)s %(spanId)s %(message)s'))
+logger.addHandler(handler)
+# Add the event handler to the logger
 logger.addHandler(AzureEventHandler(connection_string='InstrumentationKey=49fac209-3b47-4bfe-a466-a864fb80f832'))
+
+# set logger level
+logger.setLevel(logging.INFO)
 
 # Metrics
 exporter = metrics_exporter.new_metrics_exporter(
   enable_standard_metrics=True,
   connection_string='InstrumentationKey=49fac209-3b47-4bfe-a466-a864fb80f832')
+view_manager.register_exporter(exporter)
 
 # Tracing
 tracer = Tracer(
