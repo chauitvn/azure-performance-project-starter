@@ -3,6 +3,7 @@
 # Variables
 resourceGroup="acdnd-c4-project"
 clusterName="udacity-cluster"
+location="westus"
 
 echo "STEP 0 - Creating resource group $resourceGroup..."
 
