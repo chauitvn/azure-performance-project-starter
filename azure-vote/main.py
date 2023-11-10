@@ -10,20 +10,11 @@ from datetime import datetime
 # App Insights
 # Import required libraries for App Insights
 from opencensus.trace.tracer import Tracer
-from opencensus.trace import config_integration
-from opencensus.stats import view as view_module
 from opencensus.ext.azure import metrics_exporter
-from opencensus.stats import stats as stats_module
 from opencensus.trace.samplers import ProbabilitySampler
 from opencensus.ext.azure.trace_exporter import AzureExporter
 from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 from opencensus.ext.azure.log_exporter import AzureLogHandler, AzureEventHandler
-
-stats = stats_module.stats
-view_manager = stats.view_manager
-config_integration.trace_integrations(['logging'])
-config_integration.trace_integrations(['requests'])
-
 
 # Logging
 logger = logging.getLogger(__name__)
@@ -40,7 +31,6 @@ logger.setLevel(logging.INFO)
 exporter = metrics_exporter.new_metrics_exporter(
   enable_standard_metrics=True,
   connection_string='InstrumentationKey=3948c691-9a6d-4560-a08a-648c94d9bf1e')
-view_manager.register_exporter(exporter)
 
 # Tracing
 tracer = Tracer(
@@ -90,6 +80,7 @@ if not r.get(button2): r.set(button2,0)
 @app.route('/', methods=['GET', 'POST'])
 def index():
 
+    print(f"Request Method: {request.method}")
     if request.method == 'GET':
 
         # Get current values
