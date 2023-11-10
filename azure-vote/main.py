@@ -10,11 +10,19 @@ from datetime import datetime
 # App Insights
 # Import required libraries for App Insights
 from opencensus.trace.tracer import Tracer
+from opencensus.trace import config_integration
 from opencensus.ext.azure import metrics_exporter
+from opencensus.stats import stats as stats_module
 from opencensus.trace.samplers import ProbabilitySampler
 from opencensus.ext.azure.trace_exporter import AzureExporter
 from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 from opencensus.ext.azure.log_exporter import AzureLogHandler, AzureEventHandler
+
+# For metrics
+stats = stats_module.stats
+view_manager = stats.view_manager
+config_integration.trace_integrations(["logging"])
+config_integration.trace_integrations(["requests"])
 
 # Logging
 logger = logging.getLogger(__name__)
@@ -88,11 +96,15 @@ def index():
         vote1 = r.get(button1).decode('utf-8')
         # use tracer object to trace cat vote
         tracer.span(name=f"Total {button1} voted: {vote1}")
+        with tracer.span(name="Cats Vote") as span:
+            print("Cats Vote")
         print(f"Cats voted: {vote1}")
 
         vote2 = r.get(button2).decode('utf-8')
         # use tracer object to trace dog vote
         tracer.span(name=f"{button2} voted: {vote2}")
+        with tracer.span(name="Dogs Vote") as span:
+            print("Dogs Vote")
         print(f"Dogs voted: {vote2}")
 
         # Return index with values
