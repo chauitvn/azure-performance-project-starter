@@ -80,6 +80,7 @@ if not r.get(button2): r.set(button2,0)
 @app.route('/', methods=['GET', 'POST'])
 def index():
 
+    tracer.span(name=f"Test Tracing")
     print(f"Request Method: {request.method}")
     if request.method == 'GET':
 
