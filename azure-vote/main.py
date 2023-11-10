@@ -87,8 +87,6 @@ if not r.get(button2): r.set(button2,0)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-
-    tracer.span(name=f"Test Tracing")
     print(f"Request Method: {request.method}")
     if request.method == 'GET':
 
@@ -97,14 +95,16 @@ def index():
         # use tracer object to trace cat vote
         tracer.span(name=f"Total {button1} voted: {vote1}")
         with tracer.span(name="Cats Vote") as span:
-            print("Cats Vote")
+             logger.info("Cats Vote")
+
         print(f"Cats voted: {vote1}")
 
         vote2 = r.get(button2).decode('utf-8')
         # use tracer object to trace dog vote
         tracer.span(name=f"{button2} voted: {vote2}")
         with tracer.span(name="Dogs Vote") as span:
-            print("Dogs Vote")
+            logger.info("Dogs Vote")
+
         print(f"Dogs voted: {vote2}")
 
         # Return index with values
@@ -123,15 +123,15 @@ def index():
             if vote1 > vote2:
                 properties = {'custom_dimensions': {'Cats Vote': vote1}}
                 # use logger object to log cat vote
-                logger.warning(f'{button1} Vote', extra=properties)
+                logger.info(f'{button1} Vote', extra=properties)
             elif vote1 < vote2:
                 properties = {'custom_dimensions': {'Dogs Vote': vote2}}
                 # use logger object to log dog vote
-                logger.warning(f'{button2} Vote', extra=properties)
+                logger.info(f'{button2} Vote', extra=properties)
             else:
                 properties = {'custom_dimensions': {'Tie': vote1}}
                 # use logger object to log tie
-                logger.warning(f'Tie', extra=properties)
+                logger.info(f'Tie', extra=properties)
 
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
 
@@ -143,7 +143,12 @@ def index():
 
             # Get current values
             vote1 = r.get(button1).decode('utf-8')
+            properties = {"custom_dimensions": {"Cats Vote": vote1}}
+            logger.info("Cats Vote", extra=properties)
+
             vote2 = r.get(button2).decode('utf-8')
+            properties = {"custom_dimensions": {"Dogs Vote": vote2}}
+            logger.info("Dogs Vote", extra=properties)
 
             # Return results
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
