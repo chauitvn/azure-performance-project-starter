@@ -3,6 +3,16 @@
 # Variables
 resourceGroup="acdnd-c4-project"
 clusterName="udacity-cluster"
+location="westus"
+
+echo "STEP 0 - Creating resource group $resourceGroup..."
+
+az group create \
+--name $resourceGroup \
+--location $location \
+--verbose
+
+echo "Resource group created: $resourceGroup"
 
 # Install aks cli
 echo "Installing AKS CLI"

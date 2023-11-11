@@ -75,7 +75,17 @@ else:
     title = app.config['TITLE']
 
 # Redis Connection
-r = redis.Redis()
+redis_server = os.environ['REDIS']
+try:
+    if "REDIS_PWD" in os.environ:
+        r = redis.StrictRedis(host=redis_server,
+                        port=6379,
+                        password=os.environ['REDIS_PWD'])
+    else:
+        r = redis.Redis(redis_server)
+    r.ping()
+except redis.ConnectionError:
+    exit('Failed to connect to Redis, terminating.')
 
 # Change title to host name to demo NLB
 if app.config['SHOWHOST'] == "true":
@@ -89,11 +99,9 @@ if not r.get(button2): r.set(button2,0)
 def index():
     print(f"Request Method: {request.method}")
     if request.method == 'GET':
-
         # Get current values
         vote1 = r.get(button1).decode('utf-8')
         # use tracer object to trace cat vote
-        tracer.span(name=f"Total {button1} voted: {vote1}")
         with tracer.span(name="Cats Vote") as span:
              logger.info("Cats Vote")
 
@@ -101,7 +109,6 @@ def index():
 
         vote2 = r.get(button2).decode('utf-8')
         # use tracer object to trace dog vote
-        tracer.span(name=f"{button2} voted: {vote2}")
         with tracer.span(name="Dogs Vote") as span:
             logger.info("Dogs Vote")
 
