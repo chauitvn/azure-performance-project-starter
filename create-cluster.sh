@@ -4,20 +4,21 @@
 resourceGroup="acdnd-c4-project"
 clusterName="udacity-cluster"
 location="westus"
+myAcrName="myacr20210601"
 
-echo "STEP 0 - Creating resource group $resourceGroup..."
+#echo "STEP 0 - Creating resource group $resourceGroup..."
 
-az group create \
---name $resourceGroup \
---location $location \
---verbose
+#az group create \
+#--name $resourceGroup \
+#--location $location \
+#--verbose
 
-echo "Resource group created: $resourceGroup"
+#echo "Resource group created: $resourceGroup"
 
 # Install aks cli
 echo "Installing AKS CLI"
 
-sudo az aks install-cli
+az aks install-cli
 
 echo "AKS CLI installed"
 
@@ -31,20 +32,22 @@ az aks create \
 --name $clusterName \
 --node-count 1 \
 --enable-addons monitoring \
---generate-ssh-keys
+--generate-ssh-keys \
+--location $location \
+--attach-acr $myAcrName
 
 # For Cloud Lab users
-az aks create \
---resource-group $resourceGroup \
---name $clusterName \
---node-count 1 \
---generate-ssh-keys
+#az aks create \
+#--resource-group $resourceGroup \
+#--name $clusterName \
+#--node-count 1 \
+#--generate-ssh-keys
 
 # For Cloud Lab users
 # This command will is a substitute for "--enable-addons monitoring" option in the "az aks create"
 # Use the log analytics workspace - Resource ID
 # For Cloud Lab users, go to the existing Log Analytics workspace --> Properties --> Resource ID. Copy it and use in the command below.
-az aks enable-addons -a monitoring -n $clusterName -g $resourceGroup --workspace-resource-id "/subscriptions/6c39f60b-2bb1-4e37-ad64-faaf30beaca4/resourcegroups/cloud-demo-153430/providers/microsoft.operationalinsights/workspaces/loganalytics-153430"
+#az aks enable-addons -a monitoring -n $clusterName -g $resourceGroup --workspace-resource-id "/subscriptions/be7cadca-e589-461f-b198-8e89bb7f317a/resourceGroups/LogAnalyticsDefaultResources"
 
 echo "AKS cluster created: $clusterName"
 
@@ -61,6 +64,6 @@ echo "Verifying connection to $clusterName"
 
 kubectl get nodes
 
-# echo "Deploying to AKS cluster"
+#echo "Deploying to AKS cluster"
 # The command below will deploy a standard application to your AKS cluster. 
-# kubectl apply -f azure-vote.yaml
+#kubectl apply -f azure-vote-all-in-one-redis.yaml
