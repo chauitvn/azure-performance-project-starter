@@ -30,7 +30,7 @@ echo "Step 1 - Creating AKS cluster $clusterName"
 az aks create \
 --resource-group $resourceGroup \
 --name $clusterName \
---node-count 1 \
+--node-count 2 \
 --enable-addons monitoring \
 --generate-ssh-keys \
 --location $location \
